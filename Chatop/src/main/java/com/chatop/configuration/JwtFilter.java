@@ -28,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        String name = null;
+        String username = null;
         String jwt = null;
 
         if (authHeader != null) {
@@ -40,14 +40,26 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        if (name != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // charger les détails de l'utilisateur
-            UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(name);
+        if (jwt != null) {
+            try {
+                username = jwtUtil.extractName(jwt);
+            } catch (Exception e) {
+                // token invalide ou mal formé -> laisser username null
+            }
+        }
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =  new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // charger les détails de l'utilisateur
+            try {
+                UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
+
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =  new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception ex) {
+                // si l'utilisateur n'existe pas ou autre erreur, ne pas stopper la chaîne ici
             }
         }
 
