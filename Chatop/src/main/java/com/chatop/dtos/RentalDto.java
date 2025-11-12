@@ -1,5 +1,6 @@
 package com.chatop.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,10 +15,15 @@ public class RentalDto {
     private Double price;
     private String picture;
     private String description;
-    private Long ownerId;
-    private String createdAt;
-    private String updatedAt;
 
+    @JsonProperty("owner_id")
+    private Long ownerId;
+
+    @JsonProperty("created_at")
+    private String createdAt;
+
+    @JsonProperty("updated_at")
+    private String updatedAt;
 
 }
 
