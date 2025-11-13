@@ -36,6 +36,7 @@ public class SpringSecurityConfig {
                         auth
                                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/rentals", "/api/rentals/**").permitAll()
+                                .requestMatchers("/api/messages/**").authenticated()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(userDetailsService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
