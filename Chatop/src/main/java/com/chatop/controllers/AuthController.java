@@ -36,6 +36,7 @@ public class AuthController {
     this.authenticationManager = authenticationManager;
   }
 
+
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest req, org.springframework.validation.BindingResult bindingResult) {
 
@@ -79,6 +80,7 @@ public class AuthController {
 
   }
 
+
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody LoginRequest req) {
     try {
@@ -94,6 +96,7 @@ public class AuthController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login or password");
     }
   }
+
 
 
   @GetMapping("/me")

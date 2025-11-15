@@ -35,8 +35,10 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                                .requestMatchers("/images/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/rentals", "/api/rentals/**").permitAll()
                                 .requestMatchers("/api/messages/**").authenticated()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(userDetailsService, jwtUtils), UsernamePasswordAuthenticationFilter.class)

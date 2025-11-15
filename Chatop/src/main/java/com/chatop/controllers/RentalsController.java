@@ -84,13 +84,13 @@ public class RentalsController {
     r.setDescription(description);
     r.setOwnerId(owner.getId());
 
-    // handle picture saving to uploads/ if provided
+    // handle picture saving to static/images/ if provided
     if (picture != null && !picture.isEmpty()) {
       try {
-        String uploadsDir = System.getProperty("user.dir") + "\\..\\..\\uploads"; // repo root uploads folder
-        Path uploadsPath = Path.of(uploadsDir).toAbsolutePath().normalize();
-        if (!Files.exists(uploadsPath)) {
-          Files.createDirectories(uploadsPath);
+        String imagesDir = "C:\\Users\\david\\Desktop\\OCR\\Projet 3\\Developpez-le-back-end-en-utilisant-Java-et-Spring\\Chatop\\src\\main\\resources\\static\\images";
+        Path imagesPath = Path.of(imagesDir).toAbsolutePath().normalize();
+        if (!Files.exists(imagesPath)) {
+          Files.createDirectories(imagesPath);
         }
         String ext = "";
         String original = picture.getOriginalFilename();
@@ -98,8 +98,10 @@ public class RentalsController {
           ext = original.substring(original.lastIndexOf('.'));
         }
         String filename = UUID.randomUUID() + ext;
-        Path target = uploadsPath.resolve(filename);
+        Path target = imagesPath.resolve(filename);
         Files.copy(picture.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+        // Stocker uniquement le nom du fichier
         r.setPicture(filename);
       } catch (IOException e) {
         return ResponseEntity.status(500).body("Failed to store picture: " + e.getMessage());
@@ -153,10 +155,10 @@ public class RentalsController {
     // Gérer l'upload de l'image si fournie
     if (picture != null && !picture.isEmpty()) {
       try {
-        String uploadsDir = System.getProperty("user.dir") + "\\..\\..\\uploads";
-        Path uploadsPath = Path.of(uploadsDir).toAbsolutePath().normalize();
-        if (!Files.exists(uploadsPath)) {
-          Files.createDirectories(uploadsPath);
+        String imagesDir = "C:\\Users\\david\\Desktop\\OCR\\Projet 3\\Developpez-le-back-end-en-utilisant-Java-et-Spring\\Chatop\\src\\main\\resources\\static\\images";
+        Path imagesPath = Path.of(imagesDir).toAbsolutePath().normalize();
+        if (!Files.exists(imagesPath)) {
+          Files.createDirectories(imagesPath);
         }
         String ext = "";
         String original = picture.getOriginalFilename();
@@ -164,8 +166,10 @@ public class RentalsController {
           ext = original.substring(original.lastIndexOf('.'));
         }
         String filename = UUID.randomUUID() + ext;
-        Path target = uploadsPath.resolve(filename);
+        Path target = imagesPath.resolve(filename);
         Files.copy(picture.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+        // Stocker uniquement le nom du fichier
         rental.setPicture(filename);
       } catch (IOException e) {
         return ResponseEntity.status(500).body("Failed to store picture: " + e.getMessage());
@@ -183,7 +187,14 @@ public class RentalsController {
     dto.setName(r.getName());
     dto.setSurface(r.getSurface() != null ? r.getSurface().doubleValue() : null);
     dto.setPrice(r.getPrice() != null ? r.getPrice().doubleValue() : null);
-    dto.setPicture(r.getPicture());
+
+    // Construire l'URL complète de l'image pour le front-end
+    if (r.getPicture() != null && !r.getPicture().isEmpty()) {
+      dto.setPicture("http://localhost:8080/images/" + r.getPicture());
+    } else {
+      dto.setPicture(r.getPicture());
+    }
+
     dto.setDescription(r.getDescription());
     dto.setOwnerId(r.getOwnerId());
     dto.setCreatedAt(r.getCreatedAt() != null ? r.getCreatedAt().format(DATE_FORMAT) : null);
