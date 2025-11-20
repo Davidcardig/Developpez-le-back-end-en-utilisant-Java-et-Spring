@@ -1,46 +1,59 @@
 package com.chatop.controllers;
 
+import com.chatop.services.ImageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 @RestController
 @RequestMapping("/images")
+@Tag(name = "Images", description = "API de gestion des images des locations")
 public class ImageController {
 
-    private final String imagesDir = "C:\\Users\\david\\Desktop\\OCR\\Projet 3\\Developpez-le-back-end-en-utilisant-Java-et-Spring\\Chatop\\src\\main\\resources\\static\\images";
+    private final ImageService imageService;
 
+    public ImageController(ImageService imageService) {
+        this.imageService = imageService;
+    }
+
+    @Operation(
+        summary = "Récupérer une image",
+        description = "Charge et retourne une image de location par son nom de fichier",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Image trouvée et retournée",
+            content = @Content(mediaType = "image/png")
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Image non trouvée",
+            content = @Content
+        )
+    })
     @GetMapping("/{filename:.+}")
-    public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
+    public ResponseEntity<Resource> serveImage(
+        @Parameter(description = "Nom du fichier image", required = true)
+        @PathVariable String filename) {
         try {
-            Path filePath = Paths.get(imagesDir).resolve(filename).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
+            Resource resource = imageService.loadImage(filename);
+            String contentType = imageService.getContentType(filename);
 
-            if (resource.exists() && resource.isReadable()) {
-                // Déterminer le type de contenu
-                String contentType = "application/octet-stream";
-                String fileExtension = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
-
-                switch (fileExtension) {
-                    case "jpg":
-                    case "jpeg":
-                        contentType = "image/jpeg";
-                        break;
-                }
-
-                return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(contentType))
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .body(resource);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

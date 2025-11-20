@@ -1,74 +1,68 @@
 package com.chatop.controllers;
 
-import com.chatop.dtos.MessageDto;
 import com.chatop.dtos.MessageRequest;
-import com.chatop.models.Message;
-import com.chatop.models.User;
-import com.chatop.repositories.MessageRepository;
-import com.chatop.repositories.RentalRepository;
-import com.chatop.repositories.UserRepository;
+import com.chatop.services.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/messages")
+@Tag(name = "Messages", description = "API de gestion des messages entre utilisateurs et propriétaires")
 public class MessageController {
 
-    private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
-    private final RentalRepository rentalRepository;
-    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private final MessageService messageService;
 
-    public MessageController(MessageRepository messageRepository, UserRepository userRepository, RentalRepository rentalRepository) {
-        this.messageRepository = messageRepository;
-        this.userRepository = userRepository;
-        this.rentalRepository = rentalRepository;
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
     }
 
+    @Operation(
+        summary = "Envoyer un message",
+        description = "Permet à un utilisateur authentifié d'envoyer un message concernant une location",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Message envoyé avec succès",
+            content = @Content(mediaType = "application/json")
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Non autorisé",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Utilisateur ou location non trouvé(e)",
+            content = @Content
+        )
+    })
     @PostMapping
     public ResponseEntity<?> createMessage(@RequestBody MessageRequest request) {
-        // Récupérer l'utilisateur authentifié depuis le SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
 
         String email = authentication.getName();
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            return ResponseEntity.status(401).body("User not found");
+
+        try {
+            messageService.createMessage(request, email);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Message send with success"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
-
-        // Vérifier que le rental existe
-        if (!rentalRepository.existsById(request.getRental_id())) {
-            return ResponseEntity.status(404).body("Rental not found");
-        }
-
-        // Créer le message
-        Message message = new Message();
-        message.setMessage(request.getMessage());
-        message.setUserId(user.getId()); // On utilise toujours l'utilisateur authentifié, pas celui du request
-        message.setRentalId(request.getRental_id());
-
-        messageRepository.save(message);
-
-        return ResponseEntity.ok(Collections.singletonMap("message", "Message send with success"));
-    }
-
-    private MessageDto toDto(Message m) {
-        MessageDto dto = new MessageDto();
-        dto.setId(m.getId());
-        dto.setRentalId(m.getRentalId());
-        dto.setUserId(m.getUserId());
-        dto.setMessage(m.getMessage());
-        dto.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().format(DATE_FORMAT) : null);
-        dto.setUpdatedAt(m.getUpdatedAt() != null ? m.getUpdatedAt().format(DATE_FORMAT) : null);
-        return dto;
     }
 }
 
