@@ -10,10 +10,10 @@ import java.nio.file.Paths;
 @Service
 public class ImageService {
 
-    private final String imagesDir = "Chatop\\src\\main\\resources\\static\\images";
+    private final String imagesDir = "C:\\Users\\david\\Desktop\\OCR\\Projet 3 bis\\Developpez-le-back-end-en-utilisant-Java-et-Spring\\Chatop\\src\\main\\resources\\static\\images";
 
     public Resource loadImage(String filename) throws Exception {
-        Path filePath = Paths.get(imagesDir).resolve(filename).normalize();
+        Path filePath = Paths.get(imagesDir).resolve(filename).normalize().toAbsolutePath();
         Resource resource = new UrlResource(filePath.toUri());
 
         if (resource.exists() && resource.isReadable()) {

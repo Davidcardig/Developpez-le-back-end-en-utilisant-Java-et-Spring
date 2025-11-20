@@ -1,6 +1,7 @@
 package com.chatop.controllers;
 
 import com.chatop.dtos.RentalDto;
+import com.chatop.dtos.RentalRequestDto;
 import com.chatop.services.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,13 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -117,16 +118,10 @@ public class RentalsController {
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> createRental(
-    @Parameter(description = "Nom de la location", required = true)
-    @RequestParam("name") String name,
-    @Parameter(description = "Surface en m²", required = true)
-    @RequestParam("surface") Double surface,
-    @Parameter(description = "Prix de location", required = true)
-    @RequestParam("price") Double price,
-    @Parameter(description = "Photo de la location")
-    @RequestParam(value = "picture", required = false) MultipartFile picture,
-    @Parameter(description = "Description détaillée de la location")
-    @RequestParam(value = "description", required = false) String description
+    @RequestBody(description = "Données de la nouvelle location", required = true,
+                 content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                                    schema = @Schema(implementation = RentalRequestDto.class)))
+    @ModelAttribute RentalRequestDto rentalRequest
   ) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
@@ -136,7 +131,14 @@ public class RentalsController {
     String email = authentication.getName();
 
     try {
-      RentalDto rental = rentalService.createRental(name, surface, price, picture, description, email);
+      RentalDto rental = rentalService.createRental(
+        rentalRequest.getName(),
+        rentalRequest.getSurface(),
+        rentalRequest.getPrice(),
+        rentalRequest.getPicture(),
+        rentalRequest.getDescription(),
+        email
+      );
       return ResponseEntity.ok(Collections.singletonMap("rental", rental));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(401).body(e.getMessage());
@@ -182,16 +184,10 @@ public class RentalsController {
   public ResponseEntity<?> updateRental(
     @Parameter(description = "ID de la location à modifier", required = true)
     @PathVariable("id") Long id,
-    @Parameter(description = "Nouveau nom de la location", required = true)
-    @RequestParam("name") String name,
-    @Parameter(description = "Nouvelle surface en m²", required = true)
-    @RequestParam("surface") Double surface,
-    @Parameter(description = "Nouveau prix de location", required = true)
-    @RequestParam("price") Double price,
-    @Parameter(description = "Nouvelle photo de la location")
-    @RequestParam(value = "picture", required = false) MultipartFile picture,
-    @Parameter(description = "Nouvelle description de la location")
-    @RequestParam(value = "description", required = false) String description
+    @RequestBody(description = "Nouvelles données de la location", required = true,
+                 content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                                    schema = @Schema(implementation = RentalRequestDto.class)))
+    @ModelAttribute RentalRequestDto rentalRequest
   ) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
@@ -201,7 +197,15 @@ public class RentalsController {
     String email = authentication.getName();
 
     try {
-      rentalService.updateRental(id, name, surface, price, picture, description, email);
+      rentalService.updateRental(
+        id,
+        rentalRequest.getName(),
+        rentalRequest.getSurface(),
+        rentalRequest.getPrice(),
+        rentalRequest.getPicture(),
+        rentalRequest.getDescription(),
+        email
+      );
       return ResponseEntity.ok(Collections.singletonMap("message", "Rental updated !"));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(404).body(e.getMessage());

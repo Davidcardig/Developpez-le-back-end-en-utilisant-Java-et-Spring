@@ -25,7 +25,7 @@ public class RentalService {
     private final RentalRepository rentalRepository;
     private final UserRepository userRepository;
     private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-    private final String imagesDir = "C:\\Users\\david\\Desktop\\OCR\\Projet 3\\Developpez-le-back-end-en-utilisant-Java-et-Spring\\Chatop\\src\\main\\resources\\static\\images";
+    private final String imagesDir = "C:\\Users\\david\\Desktop\\OCR\\Projet 3 bis\\Developpez-le-back-end-en-utilisant-Java-et-Spring\\Chatop\\src\\main\\resources\\static\\images";
 
     public RentalService(RentalRepository rentalRepository, UserRepository userRepository) {
         this.rentalRepository = rentalRepository;
