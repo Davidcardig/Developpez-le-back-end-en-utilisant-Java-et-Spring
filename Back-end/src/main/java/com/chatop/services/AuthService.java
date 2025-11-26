@@ -1,6 +1,7 @@
 package com.chatop.services;
 
 import com.chatop.configuration.JwtUtils;
+import com.chatop.dtos.AuthResponse;
 import com.chatop.dtos.LoginRequest;
 import com.chatop.dtos.RegisterRequest;
 import com.chatop.dtos.UserResponse;
@@ -32,7 +33,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
-    public Map<String, Object> registerUser(RegisterRequest request, BindingResult bindingResult) {
+    public AuthResponse registerUser(RegisterRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String error = bindingResult.getFieldErrors().stream()
                     .findFirst()
@@ -52,14 +53,9 @@ public class AuthService {
 
 
         User saved = userRepository.save(user);
-        UserResponse userResponse = UserMapper.toResponse(saved);
+        String token = jwtUtils.generateToken(saved.getEmail());
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("token", jwtUtils.generateToken(saved.getEmail()));
-        data.put("type", "Bearer");
-        data.put("user", userResponse);
-
-        return data;
+        return new AuthResponse(token);
     }
 
     public Map<String, Object> loginUser(LoginRequest request) {

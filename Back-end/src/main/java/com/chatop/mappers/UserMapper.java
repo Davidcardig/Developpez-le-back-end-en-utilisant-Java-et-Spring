@@ -14,7 +14,6 @@ public class UserMapper {
         User user = new User();
         user.setName(req.getName());
         user.setEmail(req.getEmail());
-        user.setPassword(req.getPassword());
         return user;
     }
 

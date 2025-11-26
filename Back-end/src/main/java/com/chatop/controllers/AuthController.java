@@ -46,12 +46,10 @@ public class AuthController {
       content = @Content
     )
   })
-
-
-  @PostMapping("/register") //REGISTER USER
-  public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest req, org.springframework.validation.BindingResult bindingResult) {
-    Map<String, Object> data = authService.registerUser(req, bindingResult);
-    return ResponseEntity.ok(data);
+  @PostMapping("/register")
+  public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest req, org.springframework.validation.BindingResult bindingResult) {
+    AuthResponse response = authService.registerUser(req, bindingResult);
+    return ResponseEntity.ok(response);
   }
 
   @Operation(

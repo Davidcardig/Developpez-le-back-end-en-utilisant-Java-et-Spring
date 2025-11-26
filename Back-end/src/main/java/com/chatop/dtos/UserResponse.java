@@ -12,10 +12,8 @@ public class UserResponse {
     private Integer id;
     private String name;
     private String email;
-    private String password;
     private String createdAt;
     private String updatedAt;
-
 
 }
 
