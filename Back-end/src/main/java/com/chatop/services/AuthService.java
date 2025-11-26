@@ -50,11 +50,6 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
-            user.setRole("ROLE_USER");
-        } else {
-            user.setRole(request.getRole());
-        }
 
         User saved = userRepository.save(user);
         UserResponse userResponse = UserMapper.toResponse(saved);

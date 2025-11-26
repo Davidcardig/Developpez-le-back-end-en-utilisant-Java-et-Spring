@@ -6,9 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MessageDto {
-    private Long id;
-    private Long rentalId;
-    private Long userId;
+    private Integer id;
+    private Integer rentalId;
+    private Integer userId;
     private String message;
     private String createdAt;
     private String updatedAt;

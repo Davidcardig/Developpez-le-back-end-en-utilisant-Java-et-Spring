@@ -48,21 +48,15 @@ public class MessageController {
             content = @Content
         )
     })
-    @PostMapping
+
+    @PostMapping // POST /api/messages
     public ResponseEntity<?> createMessage(@RequestBody MessageRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-
         String email = authentication.getName();
 
-        try {
-            messageService.createMessage(request, email);
-            return ResponseEntity.ok(Collections.singletonMap("message", "Message send with success"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+        // Les exceptions (IllegalArgumentException) seront gérées par GlobalExceptionHandler
+        messageService.createMessage(request, email);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Message send with success"));
     }
 }
 

@@ -24,7 +24,6 @@ public class UserMapper {
         r.setId(user.getId());
         r.setName(user.getName());
         r.setEmail(user.getEmail());
-        r.setRole(user.getRole());
         r.setCreatedAt(user.getCreatedAt() != null ? user.getCreatedAt().format(ISO) : null);
         r.setUpdatedAt(user.getUpdatedAt() != null ? user.getUpdatedAt().format(ISO) : null);
         return r;

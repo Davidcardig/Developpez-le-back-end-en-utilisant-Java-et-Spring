@@ -19,13 +19,13 @@ public class Message implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "rental_id", nullable = false)
-    private Long rentalId;
+    private Integer rentalId;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Integer userId;
 
     @Column(length = 2000)
     private String message;

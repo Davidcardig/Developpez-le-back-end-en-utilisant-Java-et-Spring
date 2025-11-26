@@ -21,7 +21,7 @@ public class Rental implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(length = 255)
     private String name;
@@ -38,8 +38,10 @@ public class Rental implements Serializable {
     @Column(length = 2000)
     private String description;
 
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_rentals_owner"))
+    private User owner;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

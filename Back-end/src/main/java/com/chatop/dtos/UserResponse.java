@@ -9,11 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserResponse {
-    private Long id;
+    private Integer id;
     private String name;
     private String email;
-    private String role;
-  private String password;
+    private String password;
     private String createdAt;
     private String updatedAt;
 

@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -20,12 +21,12 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
     private String password;
     private String email;
-    private String role;
-
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Rental> rentals;
     // nouveaux champs pour created_at et updated_at
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

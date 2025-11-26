@@ -37,7 +37,7 @@ public class RentalService {
         return rentals.stream().map(this::toDto).collect(Collectors.toList());
     }
 
-    public Optional<RentalDto> getRentalById(Long id) {
+    public Optional<RentalDto> getRentalById(Integer id) {
         return rentalRepository.findById(id).map(this::toDto);
     }
 
@@ -53,7 +53,7 @@ public class RentalService {
         rental.setSurface(surface != null ? BigDecimal.valueOf(surface) : null);
         rental.setPrice(price != null ? BigDecimal.valueOf(price) : null);
         rental.setDescription(description);
-        rental.setOwnerId(owner.getId());
+        rental.setOwner(owner);
 
         if (picture != null && !picture.isEmpty()) {
             String filename = savePicture(picture);
@@ -64,7 +64,7 @@ public class RentalService {
         return toDto(saved);
     }
 
-    public RentalDto updateRental(Long id, String name, Double surface, Double price,
+    public RentalDto updateRental(Integer id, String name, Double surface, Double price,
                                    MultipartFile picture, String description, String userEmail) throws IOException {
         User currentUser = userRepository.findByEmail(userEmail);
         if (currentUser == null) {
@@ -74,7 +74,7 @@ public class RentalService {
         Rental rental = rentalRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Rental not found"));
 
-        if (!rental.getOwnerId().equals(currentUser.getId())) {
+        if (rental.getOwner() == null || !rental.getOwner().getId().equals(currentUser.getId())) {
             throw new SecurityException("You are not authorized to update this rental");
         }
 
@@ -125,7 +125,7 @@ public class RentalService {
         }
 
         dto.setDescription(rental.getDescription());
-        dto.setOwnerId(rental.getOwnerId());
+        dto.setOwnerId(rental.getOwner() != null ? rental.getOwner().getId() : null);
         dto.setCreatedAt(rental.getCreatedAt() != null ? rental.getCreatedAt().format(DATE_FORMAT) : null);
         dto.setUpdatedAt(rental.getUpdatedAt() != null ? rental.getUpdatedAt().format(DATE_FORMAT) : null);
         return dto;

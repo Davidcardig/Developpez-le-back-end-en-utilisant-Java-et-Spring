@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RentalDto {
-    private Long id;
+    private Integer id;
     private String name;
     private Double surface;
     private Double price;
@@ -17,7 +17,7 @@ public class RentalDto {
     private String description;
 
     @JsonProperty("owner_id")
-    private Long ownerId;
+    private Integer ownerId;
 
     @JsonProperty("created_at")
     private String createdAt;

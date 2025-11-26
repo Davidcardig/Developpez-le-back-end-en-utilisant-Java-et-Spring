@@ -42,21 +42,17 @@ public class ImageController {
             content = @Content
         )
     })
-    @GetMapping("/{filename:.+}")
+    @GetMapping("/{filename:.+}") // GET /images/{filename}
     public ResponseEntity<Resource> serveImage(
         @Parameter(description = "Nom du fichier image", required = true)
-        @PathVariable String filename) {
-        try {
-            Resource resource = imageService.loadImage(filename);
-            String contentType = imageService.getContentType(filename);
+        @PathVariable String filename) throws Exception {
+        Resource resource = imageService.loadImage(filename);
+        String contentType = imageService.getContentType(filename);
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                    .body(resource);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                .body(resource);
     }
 }
 

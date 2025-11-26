@@ -52,7 +52,7 @@ public class RentalsController {
       content = @Content
     )
   })
-  @GetMapping
+  @GetMapping // GET /api/rentals
   public ResponseEntity<Map<String, Object>> getAllRentals() {
     List<RentalDto> rentals = rentalService.getAllRentals();
     return ResponseEntity.ok(Collections.singletonMap("rentals", rentals));
@@ -83,15 +83,14 @@ public class RentalsController {
       content = @Content
     )
   })
-  @GetMapping("/{id}")
+  @GetMapping("/{id}") // GET /api/rentals/{id}
   public ResponseEntity<?> getRentalById(
     @Parameter(description = "ID de la location", required = true)
-    @PathVariable("id") Long id) {
+    @PathVariable("id") Integer id) {
     Optional<RentalDto> rental = rentalService.getRentalById(id);
-    if (rental.isEmpty()) {
-      return ResponseEntity.status(404).body("Rental not found");
-    }
-    return ResponseEntity.ok(rental.get());
+    // Lance IllegalArgumentException si non trouvé, gérée par GlobalExceptionHandler
+    return ResponseEntity.ok(rental.orElseThrow(() ->
+        new IllegalArgumentException("Rental not found with id: " + id)));
   }
 
   @Operation(
@@ -116,35 +115,26 @@ public class RentalsController {
       content = @Content
     )
   })
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // POST /api/rentals
   public ResponseEntity<?> createRental(
     @RequestBody(description = "Données de la nouvelle location", required = true,
                  content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
                                     schema = @Schema(implementation = RentalRequestDto.class)))
     @ModelAttribute RentalRequestDto rentalRequest
-  ) {
+  ) throws IOException {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-      return ResponseEntity.status(401).body("Unauthorized");
-    }
-
     String email = authentication.getName();
 
-    try {
-      RentalDto rental = rentalService.createRental(
-        rentalRequest.getName(),
-        rentalRequest.getSurface(),
-        rentalRequest.getPrice(),
-        rentalRequest.getPicture(),
-        rentalRequest.getDescription(),
-        email
-      );
-      return ResponseEntity.ok(Collections.singletonMap("rental", rental));
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(401).body(e.getMessage());
-    } catch (IOException e) {
-      return ResponseEntity.status(500).body("Failed to store picture: " + e.getMessage());
-    }
+    // Les exceptions (IOException, IllegalArgumentException) seront gérées par GlobalExceptionHandler
+    rentalService.createRental(
+      rentalRequest.getName(),
+      rentalRequest.getSurface(),
+      rentalRequest.getPrice(),
+      rentalRequest.getPicture(),
+      rentalRequest.getDescription(),
+      email
+    );
+    return ResponseEntity.ok(Collections.singletonMap("message", "Rental created !"));
   }
 
 
@@ -180,40 +170,30 @@ public class RentalsController {
       content = @Content
     )
   })
-  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
+  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // PUT /api/rentals/{id}
   public ResponseEntity<?> updateRental(
     @Parameter(description = "ID de la location à modifier", required = true)
-    @PathVariable("id") Long id,
+    @PathVariable("id") Integer id,
     @RequestBody(description = "Nouvelles données de la location", required = true,
                  content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
                                     schema = @Schema(implementation = RentalRequestDto.class)))
     @ModelAttribute RentalRequestDto rentalRequest
-  ) {
+  ) throws IOException {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-      return ResponseEntity.status(401).body("Unauthorized");
-    }
-
     String email = authentication.getName();
 
-    try {
-      rentalService.updateRental(
-        id,
-        rentalRequest.getName(),
-        rentalRequest.getSurface(),
-        rentalRequest.getPrice(),
-        rentalRequest.getPicture(),
-        rentalRequest.getDescription(),
-        email
-      );
-      return ResponseEntity.ok(Collections.singletonMap("message", "Rental updated !"));
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(404).body(e.getMessage());
-    } catch (SecurityException e) {
-      return ResponseEntity.status(403).body(e.getMessage());
-    } catch (IOException e) {
-      return ResponseEntity.status(500).body("Failed to store picture: " + e.getMessage());
-    }
+    // Les exceptions (IOException, SecurityException, IllegalArgumentException) seront gérées par GlobalExceptionHandler
+    rentalService.updateRental(
+      id,
+      rentalRequest.getName(),
+      rentalRequest.getSurface(),
+      rentalRequest.getPrice(),
+      rentalRequest.getPicture(),
+      rentalRequest.getDescription(),
+      email
+    );
+    return ResponseEntity.ok(Collections.singletonMap("message", "Rental updated !"));
   }
 }
 

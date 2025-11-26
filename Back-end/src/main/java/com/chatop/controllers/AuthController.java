@@ -30,7 +30,6 @@ public class AuthController {
     this.authService = authService;
   }
 
-
   @Operation(
     summary = "Inscription d'un nouvel utilisateur",
     description = "Créer un nouveau compte utilisateur avec email, nom et mot de passe"
@@ -47,16 +46,13 @@ public class AuthController {
       content = @Content
     )
   })
-  @PostMapping("/register")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest req, org.springframework.validation.BindingResult bindingResult) {
-    try {
-      Map<String, Object> data = authService.registerUser(req, bindingResult);
-      return ResponseEntity.ok(data);
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
-  }
 
+
+  @PostMapping("/register") //REGISTER USER
+  public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest req, org.springframework.validation.BindingResult bindingResult) {
+    Map<String, Object> data = authService.registerUser(req, bindingResult);
+    return ResponseEntity.ok(data);
+  }
 
   @Operation(
     summary = "Connexion d'un utilisateur",
@@ -74,17 +70,15 @@ public class AuthController {
       content = @Content
     )
   })
-  @PostMapping("/login")
-  public ResponseEntity<?> loginUser(@RequestBody LoginRequest req) {
-    try {
-      Map<String, Object> authData = authService.loginUser(req);
-      return ResponseEntity.ok(authData);
-    } catch (Exception e) {
-      System.err.println("Authentication error: " + e.getMessage());
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login or password");
-    }
-  }
 
+
+
+
+  @PostMapping("/login") //LOGIN USER
+  public ResponseEntity<?> loginUser(@RequestBody LoginRequest req) {
+    Map<String, Object> authData = authService.loginUser(req);
+    return ResponseEntity.ok(authData);
+  }
 
   @Operation(
     summary = "Récupérer les informations de l'utilisateur connecté",
@@ -106,7 +100,9 @@ public class AuthController {
       content = @Content
     )
   })
-  @GetMapping("/me")
+
+
+  @GetMapping("/me") //GET CURRENT USER
   public ResponseEntity<?> getMe(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String email;
@@ -114,18 +110,10 @@ public class AuthController {
     if (auth != null && auth.isAuthenticated() && auth.getName() != null && !"anonymousUser".equals(auth.getName())) {
       email = auth.getName();
     } else {
-      try {
-        email = authService.extractEmailFromToken(authorization);
-      } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-      }
+      email = authService.extractEmailFromToken(authorization);
     }
 
-    try {
-      UserResponse userResponse = authService.getCurrentUser(email);
-      return ResponseEntity.ok(userResponse);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-    }
+    UserResponse userResponse = authService.getCurrentUser(email);
+    return ResponseEntity.ok(userResponse);
   }
 }
