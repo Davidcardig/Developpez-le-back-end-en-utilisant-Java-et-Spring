@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -49,13 +47,9 @@ public class MessageController {
         )
     })
 
-    @PostMapping // POST /api/messages
-    public ResponseEntity<?> createMessage(@RequestBody MessageRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        // Les exceptions (IllegalArgumentException) seront gérées par GlobalExceptionHandler
-        messageService.createMessage(request, email);
+    @PostMapping
+    public ResponseEntity<java.util.Map<String, String>> createMessage(@RequestBody MessageRequest request) {
+        messageService.createMessage(request);
         return ResponseEntity.ok(Collections.singletonMap("message", "Message send with success"));
     }
 }

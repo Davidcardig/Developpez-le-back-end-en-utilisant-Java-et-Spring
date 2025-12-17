@@ -10,6 +10,8 @@ import com.chatop.models.User;
 import com.chatop.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -70,7 +72,10 @@ public class AuthService {
         return authData;
     }
 
-    public UserResponse getCurrentUser(String email) {
+    public UserResponse getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new IllegalArgumentException("User not found");
@@ -78,19 +83,4 @@ public class AuthService {
         return UserMapper.toResponse(user);
     }
 
-    public String extractEmailFromToken(String authorization) {
-        if (authorization == null || authorization.trim().isEmpty()) {
-            throw new IllegalArgumentException("Missing Authorization header");
-        }
-
-        String token;
-        if (authorization.startsWith("Bearer ")) {
-            token = authorization.substring(7).trim();
-        } else {
-            token = authorization.trim();
-        }
-
-        return jwtUtils.extractName(token);
-    }
 }
-

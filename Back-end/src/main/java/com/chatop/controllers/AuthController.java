@@ -9,14 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
 import java.util.Map;
 
 @RestController
@@ -48,8 +45,7 @@ public class AuthController {
   })
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest req, org.springframework.validation.BindingResult bindingResult) {
-    AuthResponse response = authService.registerUser(req, bindingResult);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(authService.registerUser(req, bindingResult));
   }
 
   @Operation(
@@ -68,14 +64,9 @@ public class AuthController {
       content = @Content
     )
   })
-
-
-
-
-  @PostMapping("/login") //LOGIN USER
-  public ResponseEntity<?> loginUser(@RequestBody LoginRequest req) {
-    Map<String, Object> authData = authService.loginUser(req);
-    return ResponseEntity.ok(authData);
+  @PostMapping("/login")
+  public ResponseEntity<Map<String, Object>> loginUser(@RequestBody LoginRequest req) {
+    return ResponseEntity.ok(authService.loginUser(req));
   }
 
   @Operation(
@@ -98,20 +89,8 @@ public class AuthController {
       content = @Content
     )
   })
-
-
-  @GetMapping("/me") //GET CURRENT USER
-  public ResponseEntity<?> getMe(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String email;
-
-    if (auth != null && auth.isAuthenticated() && auth.getName() != null && !"anonymousUser".equals(auth.getName())) {
-      email = auth.getName();
-    } else {
-      email = authService.extractEmailFromToken(authorization);
-    }
-
-    UserResponse userResponse = authService.getCurrentUser(email);
-    return ResponseEntity.ok(userResponse);
+  @GetMapping("/me")
+  public ResponseEntity<UserResponse> getMe() {
+    return ResponseEntity.ok(authService.getCurrentUser());
   }
 }

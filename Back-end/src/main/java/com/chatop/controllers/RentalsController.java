@@ -18,11 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/rentals")
@@ -84,13 +81,11 @@ public class RentalsController {
     )
   })
   @GetMapping("/{id}") // GET /api/rentals/{id}
-  public ResponseEntity<?> getRentalById(
+  public ResponseEntity<RentalDto> getRentalById(
     @Parameter(description = "ID de la location", required = true)
     @PathVariable("id") Integer id) {
-    Optional<RentalDto> rental = rentalService.getRentalById(id);
-    // Lance IllegalArgumentException si non trouvé, gérée par GlobalExceptionHandler
-    return ResponseEntity.ok(rental.orElseThrow(() ->
-        new IllegalArgumentException("Rental not found with id: " + id)));
+    return ResponseEntity.ok(rentalService.getRentalById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Rental not found with id: " + id)));
   }
 
   @Operation(
@@ -115,28 +110,15 @@ public class RentalsController {
       content = @Content
     )
   })
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // POST /api/rentals
-  public ResponseEntity<?> createRental(
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<Map<String, String>> createRental(
     @RequestBody(description = "Données de la nouvelle location", required = true,
-                 content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                                    schema = @Schema(implementation = RentalRequestDto.class)))
+            content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = RentalRequestDto.class)))
     @ModelAttribute RentalRequestDto rentalRequest
   ) throws IOException {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String email = authentication.getName();
-
-    // Les exceptions (IOException, IllegalArgumentException) seront gérées par GlobalExceptionHandler
-    rentalService.createRental(
-      rentalRequest.getName(),
-      rentalRequest.getSurface(),
-      rentalRequest.getPrice(),
-      rentalRequest.getPicture(),
-      rentalRequest.getDescription(),
-      email
-    );
+    rentalService.createRental(rentalRequest);
     return ResponseEntity.ok(Collections.singletonMap("message", "Rental created !"));
   }
-
 
   @Operation(
     summary = "Mettre à jour une location",
@@ -170,9 +152,8 @@ public class RentalsController {
       content = @Content
     )
   })
-
-  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // PUT /api/rentals/{id}
-  public ResponseEntity<?> updateRental(
+  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<Map<String, String>> updateRental(
     @Parameter(description = "ID de la location à modifier", required = true)
     @PathVariable("id") Integer id,
     @RequestBody(description = "Nouvelles données de la location", required = true,
@@ -180,19 +161,7 @@ public class RentalsController {
                                     schema = @Schema(implementation = RentalRequestDto.class)))
     @ModelAttribute RentalRequestDto rentalRequest
   ) throws IOException {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String email = authentication.getName();
-
-    // Les exceptions (IOException, SecurityException, IllegalArgumentException) seront gérées par GlobalExceptionHandler
-    rentalService.updateRental(
-      id,
-      rentalRequest.getName(),
-      rentalRequest.getSurface(),
-      rentalRequest.getPrice(),
-      rentalRequest.getPicture(),
-      rentalRequest.getDescription(),
-      email
-    );
+    rentalService.updateRental(id, rentalRequest);
     return ResponseEntity.ok(Collections.singletonMap("message", "Rental updated !"));
   }
 }
