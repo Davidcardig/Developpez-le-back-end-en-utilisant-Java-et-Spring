@@ -6,10 +6,7 @@ import com.chatop.mappers.RentalMapper;
 import com.chatop.models.Rental;
 import com.chatop.models.User;
 import com.chatop.repositories.RentalRepository;
-import com.chatop.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,14 +24,14 @@ import java.util.stream.Collectors;
 public class RentalService {
 
     private final RentalRepository rentalRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     @Value("${app.images.directory:src/main/resources/static/images}")
     private String imagesDir;
 
-    public RentalService(RentalRepository rentalRepository, UserRepository userRepository) {
+    public RentalService(RentalRepository rentalRepository, CurrentUserService currentUserService) {
         this.rentalRepository = rentalRepository;
-        this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
     public List<RentalDto> getAllRentals() {
@@ -48,7 +45,7 @@ public class RentalService {
     }
 
     public RentalDto createRental(RentalRequestDto rentalRequest) throws IOException {
-        User owner = getCurrentUser();
+        User owner = currentUserService.getCurrentUser();
         Rental rental = RentalMapper.toEntity(rentalRequest, owner);
 
         if (rentalRequest.getPicture() != null && !rentalRequest.getPicture().isEmpty()) {
@@ -59,7 +56,7 @@ public class RentalService {
     }
 
     public RentalDto updateRental(Integer id, RentalRequestDto rentalRequest) throws IOException {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
         Rental rental = rentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
 
         if (rental.getOwner() == null || !rental.getOwner().getId().equals(currentUser.getId())) {
@@ -75,14 +72,6 @@ public class RentalService {
         return RentalMapper.toDto(rentalRepository.save(rental));
     }
 
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName());
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        return user;
-    }
 
     private String savePicture(MultipartFile picture) throws IOException {
         // Construit le chemin complet depuis le répertoire de travail

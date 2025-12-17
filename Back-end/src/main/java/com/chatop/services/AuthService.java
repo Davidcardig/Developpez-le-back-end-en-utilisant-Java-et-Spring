@@ -10,8 +10,6 @@ import com.chatop.models.User;
 import com.chatop.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -26,13 +24,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final CurrentUserService currentUserService;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
+                       JwtUtils jwtUtils, AuthenticationManager authenticationManager,
+                       CurrentUserService currentUserService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
+        this.currentUserService = currentUserService;
     }
 
     public AuthResponse registerUser(RegisterRequest request, BindingResult bindingResult) {
@@ -73,13 +74,7 @@ public class AuthService {
     }
 
     public UserResponse getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
+        User user = currentUserService.getCurrentUser();
         return UserMapper.toResponse(user);
     }
 
