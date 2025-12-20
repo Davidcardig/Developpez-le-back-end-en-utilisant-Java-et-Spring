@@ -3,16 +3,14 @@ package com.chatop.dtos;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class RentalRequestDto {
+public class RentalUpdateDto {
     private String name;
     private Double surface;
     private Double price;
-    private MultipartFile picture;
     private String description;
 }
 

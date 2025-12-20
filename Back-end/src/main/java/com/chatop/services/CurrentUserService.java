@@ -18,12 +18,7 @@ public class CurrentUserService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Récupère l'utilisateur actuellement connecté depuis le contexte de sécurité
-     *
-     * @return l'utilisateur connecté
-     * @throws IllegalArgumentException si l'utilisateur n'est pas trouvé
-     */
+
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -34,15 +29,4 @@ public class CurrentUserService {
         }
         return user;
     }
-
-    /**
-     * Récupère l'email de l'utilisateur actuellement connecté
-     *
-     * @return l'email de l'utilisateur connecté
-     */
-    public String getCurrentUserEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
-    }
 }
-

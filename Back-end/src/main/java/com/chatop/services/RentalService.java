@@ -2,6 +2,7 @@ package com.chatop.services;
 
 import com.chatop.dtos.RentalDto;
 import com.chatop.dtos.RentalRequestDto;
+import com.chatop.dtos.RentalUpdateDto;
 import com.chatop.mappers.RentalMapper;
 import com.chatop.models.Rental;
 import com.chatop.models.User;
@@ -55,7 +56,7 @@ public class RentalService {
         return RentalMapper.toDto(rentalRepository.save(rental));
     }
 
-    public RentalDto updateRental(Integer id, RentalRequestDto rentalRequest) throws IOException {
+    public RentalDto updateRental(Integer id, RentalUpdateDto rentalUpdateDto) {
         User currentUser = currentUserService.getCurrentUser();
         Rental rental = rentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
 
@@ -63,11 +64,7 @@ public class RentalService {
             throw new SecurityException("You are not authorized to update this rental");
         }
 
-        RentalMapper.updateEntity(rental, rentalRequest);
-
-        if (rentalRequest.getPicture() != null && !rentalRequest.getPicture().isEmpty()) {
-            rental.setPicture(savePicture(rentalRequest.getPicture()));
-        }
+        RentalMapper.updateEntityFromUpdateDto(rental, rentalUpdateDto);
 
         return RentalMapper.toDto(rentalRepository.save(rental));
     }

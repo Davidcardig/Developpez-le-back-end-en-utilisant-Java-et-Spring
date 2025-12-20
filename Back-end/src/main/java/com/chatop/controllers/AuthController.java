@@ -1,7 +1,9 @@
 package com.chatop.controllers;
 
 import com.chatop.dtos.*;
+import com.chatop.mappers.UserMapper;
 import com.chatop.services.AuthService;
+import com.chatop.services.CurrentUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,9 +24,11 @@ import java.util.Map;
 public class AuthController {
 
   private final AuthService authService;
+  private final CurrentUserService currentUserService;
 
-  public AuthController(AuthService authService) {
+  public AuthController(AuthService authService, CurrentUserService currentUserService) {
     this.authService = authService;
+    this.currentUserService = currentUserService;
   }
 
   @Operation(
@@ -91,6 +95,6 @@ public class AuthController {
   })
   @GetMapping("/me")
   public ResponseEntity<UserResponse> getMe() {
-    return ResponseEntity.ok(authService.getCurrentUser());
+    return ResponseEntity.ok(UserMapper.toResponse(currentUserService.getCurrentUser()));
   }
 }

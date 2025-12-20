@@ -2,6 +2,7 @@ package com.chatop.mappers;
 
 import com.chatop.dtos.RentalDto;
 import com.chatop.dtos.RentalRequestDto;
+import com.chatop.dtos.RentalUpdateDto;
 import com.chatop.models.Rental;
 import com.chatop.models.User;
 
@@ -25,7 +26,7 @@ public class RentalMapper {
         return rental;
     }
 
-    public static void updateEntity(Rental rental, RentalRequestDto dto) {
+    public static void updateEntityFromUpdateDto(Rental rental, RentalUpdateDto dto) {
         if (rental == null || dto == null) return;
 
         rental.setName(dto.getName());

@@ -4,8 +4,6 @@ import com.chatop.configuration.JwtUtils;
 import com.chatop.dtos.AuthResponse;
 import com.chatop.dtos.LoginRequest;
 import com.chatop.dtos.RegisterRequest;
-import com.chatop.dtos.UserResponse;
-import com.chatop.mappers.UserMapper;
 import com.chatop.models.User;
 import com.chatop.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,16 +22,13 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
-    private final CurrentUserService currentUserService;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       JwtUtils jwtUtils, AuthenticationManager authenticationManager,
-                       CurrentUserService currentUserService) {
+                       JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
-        this.currentUserService = currentUserService;
     }
 
     public AuthResponse registerUser(RegisterRequest request, BindingResult bindingResult) {
@@ -73,9 +68,5 @@ public class AuthService {
         return authData;
     }
 
-    public UserResponse getCurrentUser() {
-        User user = currentUserService.getCurrentUser();
-        return UserMapper.toResponse(user);
-    }
 
 }

@@ -2,6 +2,7 @@ package com.chatop.controllers;
 
 import com.chatop.dtos.RentalDto;
 import com.chatop.dtos.RentalRequestDto;
+import com.chatop.dtos.RentalUpdateDto;
 import com.chatop.services.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -122,7 +123,7 @@ public class RentalsController {
 
   @Operation(
     summary = "Mettre à jour une location",
-    description = "Modifier les informations d'une location existante",
+    description = "Modifier les informations d'une location existante (sans modification de l'image)",
     security = @SecurityRequirement(name = "bearerAuth")
   )
   @ApiResponses(value = {
@@ -145,23 +146,18 @@ public class RentalsController {
       responseCode = "404",
       description = "Location non trouvée",
       content = @Content
-    ),
-    @ApiResponse(
-      responseCode = "500",
-      description = "Erreur lors de l'enregistrement de l'image",
-      content = @Content
     )
   })
   @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Map<String, String>> updateRental(
     @Parameter(description = "ID de la location à modifier", required = true)
     @PathVariable("id") Integer id,
-    @RequestBody(description = "Nouvelles données de la location", required = true,
+    @RequestBody(description = "Nouvelles données de la location (l'image est ignorée)", required = true,
                  content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                                    schema = @Schema(implementation = RentalRequestDto.class)))
-    @ModelAttribute RentalRequestDto rentalRequest
-  ) throws IOException {
-    rentalService.updateRental(id, rentalRequest);
+                                    schema = @Schema(implementation = RentalUpdateDto.class)))
+    @ModelAttribute RentalUpdateDto rentalUpdateDto
+  ) {
+    rentalService.updateRental(id, rentalUpdateDto);
     return ResponseEntity.ok(Collections.singletonMap("message", "Rental updated !"));
   }
 }
