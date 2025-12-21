@@ -23,10 +23,9 @@ public class UsersDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         // essayer par email
-        User user = userRepository.findByEmail(username);
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
 
         return new org.springframework.security.core.userdetails.User(
-                // utiliser l'email comme username principal pour la cohérence avec JwtUtils
                 user.getEmail(),
                 user.getPassword(),
                 List.of()

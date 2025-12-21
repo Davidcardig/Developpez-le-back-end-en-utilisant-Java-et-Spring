@@ -56,20 +56,6 @@ public class RentalService {
         return RentalMapper.toDto(rentalRepository.save(rental));
     }
 
-    public RentalDto updateRental(Integer id, RentalUpdateDto rentalUpdateDto) {
-        User currentUser = currentUserService.getCurrentUser();
-        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
-
-        if (rental.getOwner() == null || !rental.getOwner().getId().equals(currentUser.getId())) {
-            throw new SecurityException("You are not authorized to update this rental");
-        }
-
-        RentalMapper.updateEntityFromUpdateDto(rental, rentalUpdateDto);
-
-        return RentalMapper.toDto(rentalRepository.save(rental));
-    }
-
-
     private String savePicture(MultipartFile picture) throws IOException {
         // Construit le chemin complet depuis le répertoire de travail
         Path imagesPath = Paths.get(System.getProperty("user.dir")).resolve(imagesDir);
@@ -90,6 +76,21 @@ public class RentalService {
 
         return filename;
     }
+
+    public RentalDto updateRental(Integer id, RentalUpdateDto rentalUpdateDto) {
+        User currentUser = currentUserService.getCurrentUser();
+        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
+
+        if (rental.getOwner() == null || !rental.getOwner().getId().equals(currentUser.getId())) {
+            throw new SecurityException("You are not authorized to update this rental");
+        }
+
+        RentalMapper.updateEntityFromUpdateDto(rental, rentalUpdateDto);
+
+        return RentalMapper.toDto(rentalRepository.save(rental));
+    }
+
+
 }
 
 

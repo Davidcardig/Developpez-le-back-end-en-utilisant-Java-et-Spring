@@ -22,15 +22,8 @@ public class ImageService {
     }
 
     public Resource loadImage(String filename) {
-        // Construit le chemin complet
         Path imagePath = Paths.get(imagesDir).resolve(filename);
         File imageFile = imagePath.toFile();
-
-        // Si le chemin est relatif et que le fichier n'existe pas, essaye avec le répertoire de travail
-        if (!imageFile.isAbsolute()) {
-            imagePath = Paths.get(System.getProperty("user.dir")).resolve(imagesDir).resolve(filename);
-            imageFile = imagePath.toFile();
-        }
 
         if (imageFile.exists() && imageFile.canRead()) {
             return resourceLoader.getResource("file:" + imagePath.toAbsolutePath());

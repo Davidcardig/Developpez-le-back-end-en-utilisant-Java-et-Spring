@@ -1,14 +1,13 @@
 package com.chatop.services;
 
+import com.chatop.exceptions.UserNotFoundException;
 import com.chatop.models.User;
 import com.chatop.repositories.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-/**
- * Service centralisé pour récupérer l'utilisateur connecté
- */
+
 @Service
 public class CurrentUserService {
 
@@ -23,10 +22,8 @@ public class CurrentUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        return user;
+        return userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("User not found"));
+
+
     }
 }
