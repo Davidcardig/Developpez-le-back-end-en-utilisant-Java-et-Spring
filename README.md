@@ -222,14 +222,6 @@ Une fois le back-end lancé, la documentation interactive de l'API est accessibl
 http://localhost:8080/swagger-ui/index.html
 ```
 
-### Fonctionnalités Swagger
-
-La documentation Swagger vous permet de :
-- **Visualiser** tous les endpoints disponibles
-- **Tester** les API directement depuis l'interface
-- **Consulter** les schémas des requêtes et réponses
-- **Voir** les codes de statut HTTP retournés
-
 ### Endpoints principaux
 
 #### 🔐 Authentification (`/api/auth`)
@@ -300,29 +292,6 @@ Front-end/
 ```
 
 ---
-
-## 📄 Informations Complémentaires
-
-### Sécurité
-
-- Les mots de passe sont hashés avec BCrypt
-- L'authentification utilise JWT (JSON Web Token)
-- Les endpoints sont protégés par Spring Security
-- Les tokens JWT expirent après 24 heures par défaut
-
-### Base de données
-
-- **Schéma** : `chatop`
-- **Tables** : 
-  - `USERS` : Stockage des utilisateurs
-  - `RENTALS` : Stockage des annonces
-  - `MESSAGES` : Stockage des messages
-- **Relations** : 
-  - Un utilisateur peut avoir plusieurs locations
-  - Un utilisateur peut envoyer plusieurs messages
-  - Une location appartient à un utilisateur
-
-
 
 ## 👨‍💻 Auteur
 
