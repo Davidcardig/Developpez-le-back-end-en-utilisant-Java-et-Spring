@@ -9,13 +9,6 @@ public class UserMapper {
 
     private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_DATE_TIME;
 
-    public static User toEntity(UserResponse req) {
-        if (req == null) return null;
-        User user = new User();
-        user.setName(req.getName());
-        user.setEmail(req.getEmail());
-        return user;
-    }
 
     public static UserResponse toResponse(User user) {
         if (user == null) return null;
