@@ -15,14 +15,14 @@ public class RentalMapper {
 
     public static Rental toEntity(RentalRequestDto dto, User owner) {
         if (dto == null) return null;
-
         Rental rental = new Rental();
         rental.setName(dto.getName());
-        rental.setSurface(dto.getSurface() != null ? BigDecimal.valueOf(dto.getSurface()) : null);
-        rental.setPrice(dto.getPrice() != null ? BigDecimal.valueOf(dto.getPrice()) : null);
+        rental.setSurface(dto.getSurface() != null ? BigDecimal.valueOf(dto.getSurface())
+                : null);
+        rental.setPrice(dto.getPrice() != null ? BigDecimal.valueOf(dto.getPrice())
+                : null);
         rental.setDescription(dto.getDescription());
         rental.setOwner(owner);
-
         return rental;
     }
 
