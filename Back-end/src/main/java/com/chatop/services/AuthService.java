@@ -40,7 +40,7 @@ public class AuthService {
             throw new IllegalArgumentException(error);
         }
 
-        if (userRepository.findByEmail(request.getEmail()) != null) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email is already used");
         }
 

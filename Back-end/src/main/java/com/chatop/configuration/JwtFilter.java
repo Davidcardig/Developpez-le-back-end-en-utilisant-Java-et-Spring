@@ -34,9 +34,10 @@ public class JwtFilter extends OncePerRequestFilter {
             authenticateUser(jwt, request);
         }
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response); // On continue la chaîne de filtres
     }
 
+    // On extrait le token JWT de l'en-tête Authorization
     private String extractJwtFromRequest(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null) return null;
@@ -46,6 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
             : authHeader.trim();
     }
 
+    // On authentifie l'utilisateur en utilisant le token JWT
     private void authenticateUser(String jwt, HttpServletRequest request) {
         try {
             String username = jwtUtil.extractName(jwt);
@@ -58,14 +60,13 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception ignored) {
-            // Token invalide ou utilisateur introuvable
         }
     }
 
     private void setAuthentication(UserDetails userDetails, HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken authToken =
-            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }
+
